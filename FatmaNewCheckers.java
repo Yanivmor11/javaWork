@@ -311,7 +311,7 @@ public class FatmaNewCheckers {
         }  
         String[] trimmedArray = new String[index];
         for (int i = 0; i < index; i++) {
-             trimmedArray[i] = optionalEatingsArray[i];
+			trimmedArray[i] = optionalEatingsArray[i];
         }
         
         return trimmedArray;
