@@ -1,3 +1,5 @@
+package javaWork;
+
 import java.util.Scanner;
 
 public class FatmaNewCheckers {
@@ -17,23 +19,22 @@ public class FatmaNewCheckers {
 	}
 	public static void endGame(String endType)//The game ended for some reason. After that the game will restart.
 	{
-		if(endType.equals("Surrendered") || endType.equals("ComputerWin"))
-		{
-			System.out.println("Sorry, computer has won :( ");
-			resetBoard();
-			startGame();
-		}
-		else if(endType.equals("userWin"))
-		{
-			System.out.println("Congratulations, user has won :)");
-			resetBoard();
-			startGame();
-		}
-		else if(endType.equals("cantMove"))
-		{
-			System.out.println("Well, unfortunately it’s a Tie…");
-			resetBoard();
-			startGame();
+		switch (endType) {
+			case "Surrendered", "ComputerWin" -> {
+				System.out.println("Sorry, computer has won :( ");
+				resetBoard();
+				startGame();
+			}
+			case "userWin" -> {
+				System.out.println("Congratulations, user has won :)");
+				resetBoard();
+				startGame();
+			}
+			case "cantMove" -> {
+				System.out.println("Well, unfortunately it’s a Tie…");
+				resetBoard();
+				startGame();
+			}
 		}
 	}
 	public static void playerPlay()//Shows the player the board and tells him it's his turn.
@@ -190,14 +191,10 @@ public class FatmaNewCheckers {
 			strPosition = sc.nextLine();
 		}
 		while(strPosition.length()==0);
-		for(int i=0;i<optionalEatings.length;i++)
-		{
-			if(strPosition.equals(optionalEatings[i]))
-			{
+		for (String optionalEating : optionalEatings) {
+			if (strPosition.equals(optionalEating)) {
 				userEats(strPosition);
-			}
-			else
-			{
+			} else {
 				System.out.println("This move is invalid, please enter a new move.");
 				playerPlayTimes(optionalEatings);
 			}
@@ -381,7 +378,7 @@ public class FatmaNewCheckers {
     	int randomIndex = (int) (Math.random() * countLegalMoves);
     	return legalMoves[randomIndex];
     }
-    public static boolean comCantMove(String board[][])
+    public static boolean comCantMove(String[][] board)
     {
     	for(int i=0; i<8; i++)
     		for(int j=0; j<8; j++)
@@ -394,20 +391,14 @@ public class FatmaNewCheckers {
     		}
     	return true;
     }
-    public static boolean comCanMoveRight(int row, int col,String board[][])//If the computer can move to the right - the visually impaired user can move back to the left.
+    public static boolean comCanMoveRight(int row, int col, String[][] board)//If the computer can move to the right - the visually impaired user can move back to the left.
     {
-    	if((row-1>=0) && (col-1>=0) && board[row-1][col-1].equals("*"));
-    	{
-    		return true;
-    	}
-    }
-    public static boolean comCanMoveLeft(int row, int col,String board[][])//If the computer can move to the left - the visually impaired user can move back to the right.
+		return (row - 1 >= 0) && (col - 1 >= 0) && board[row - 1][col - 1].equals("*");
+	}
+    public static boolean comCanMoveLeft(int row, int col, String[][] board)//If the computer can move to the left - the visually impaired user can move back to the right.
     {
-    	if((row-1>=0) && (col+1<8) && board[row-1][col+1].equals("*"));
-    	{
-    		return true;
-    	}
-    }
+		return (row - 1 >= 0) && (col + 1 < 8) && board[row - 1][col + 1].equals("*");
+	}
     public static boolean movingRight() // The odds shift to the right.
     {
         double randomValue = Math.random();
@@ -415,62 +406,35 @@ public class FatmaNewCheckers {
     }
 	public static boolean jumpRTwoSquares(String strPosition)
 	{
-		if((strPosition.charAt(3)+2==strPosition.charAt(0)) && (strPosition.charAt(4)+2==strPosition.charAt(1)))
-		{
-			return true;
-		}
-		return false;
+		return (strPosition.charAt(3) + 2 == strPosition.charAt(0)) && (strPosition.charAt(4) + 2 == strPosition.charAt(1));
 	}
 	public static boolean eatRight(String strPosition)
 	{
-		if(board[strPosition.charAt(3)-48][strPosition.charAt(4)-48].equals("W") ////Moving according to the ASCII table from Char to number-(-48),and moving from the list position to the board position (1-) and check one place up (1+).
-				&& board[strPosition.charAt(0)-49][strPosition.charAt(1)-49].equals("*"))
-		{
-			return true;
-		}
-		return false;
+		return board[strPosition.charAt(3) - 48][strPosition.charAt(4) - 48].equals("W") ////Moving according to the ASCII table from Char to number-(-48),and moving from the list position to the board position (1-) and check one place up (1+).
+				&& board[strPosition.charAt(0) - 49][strPosition.charAt(1) - 49].equals("*");
 	}
 	public static boolean jumpLTwoSquares(String strPosition)
 	{
-		if((strPosition.charAt(3)+2==strPosition.charAt(0)) && (strPosition.charAt(4)-2==strPosition.charAt(1)))
-		{
-			return true;
-		}
-		return false;
+		return (strPosition.charAt(3) + 2 == strPosition.charAt(0)) && (strPosition.charAt(4) - 2 == strPosition.charAt(1));
 	}
 	public static boolean eatLeft(String strPosition)
 	{
-		if(board[strPosition.charAt(3)-48][strPosition.charAt(4)-50].equals("W")  // ASCII and positions.
-				&& board[strPosition.charAt(0)-49][strPosition.charAt(1)-49].equals("*"))
-		{
-			return true;
-		}
-		return false;
+		return board[strPosition.charAt(3) - 48][strPosition.charAt(4) - 50].equals("W")  // ASCII and positions.
+				&& board[strPosition.charAt(0) - 49][strPosition.charAt(1) - 49].equals("*");
 	}
 	public static boolean jumpROneSquare(String strPosition) // Checks if we have moved one step to the right.
 	{
-		if((strPosition.charAt(3)+1==strPosition.charAt(0)) && (strPosition.charAt(4)+1==strPosition.charAt(1)))
-		{
-			return true;
-		}
-		return false;
+		return (strPosition.charAt(3) + 1 == strPosition.charAt(0)) && (strPosition.charAt(4) + 1 == strPosition.charAt(1));
 	}
 	public static boolean jumpLOneSquare(String strPosition) // Checks if we have moved one step to the left.
 	{
-		if((strPosition.charAt(3)+1==strPosition.charAt(0)) && (strPosition.charAt(4)+1==strPosition.charAt(1)))
-		{
-			return true;
-		}
-		return false;
+		return (strPosition.charAt(3) + 1 == strPosition.charAt(0)) && (strPosition.charAt(4) + 1 == strPosition.charAt(1));
 	}
 	public static boolean Winner()// The user wins when - there are no white tools.
 	{
-		if((whiteCount==0)||(redCount==0))
-			return true;
-		else 
-			return false;
+		return (whiteCount == 0) || (redCount == 0);
 	}
-	public static void whiteSquare(String board[][]) // Places a line in the white squares of the board (Without any change throughout the game).
+	public static void whiteSquare(String[][] board) // Places a line in the white squares of the board (Without any change throughout the game).
 	{
 		for(int i=0; i<=7; i++) // Goes over rows.
 			for(int j=0; j<=7; j++) // Goes over columns.
@@ -479,7 +443,7 @@ public class FatmaNewCheckers {
 					board[i][j]="-";
 			}
 	}
-	public static void redVessels(String board[][])// Starting position of red vessels.
+	public static void redVessels(String[][] board)// Starting position of red vessels.
 	{
 		for(int i=0; i<=2; i++) 
 			for(int j=0; j<=7; j++) 
@@ -488,7 +452,7 @@ public class FatmaNewCheckers {
 					board[i][j]="R";
 			}		
 	}
-	public static void whiteVessels(String board[][])// Starting position of white vessels.
+	public static void whiteVessels(String[][] board)// Starting position of white vessels.
 	{
 		for(int i=5; i<=7; i++) 
 			for(int j=0; j<=7; j++) 
@@ -497,7 +461,7 @@ public class FatmaNewCheckers {
 					board[i][j]="W";
 			}	
 	}
-	public static void Asterisk(String board[][]) //Places the asterisks on the board
+	public static void Asterisk(String[][] board) //Places the asterisks on the board
 	{
 		for(int i=3; i<=4; i++) 
 			for(int j=0; j<=7; j++)
@@ -506,7 +470,7 @@ public class FatmaNewCheckers {
 					board[i][j]="*";
 			}
 	}
-	public static void Print(String board[][]) //Prints the board
+	public static void Print(String[][] board) //Prints the board
 	{
 		for(int i=7; i>=0; i--) 
 		{
