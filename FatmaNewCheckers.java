@@ -11,7 +11,7 @@ public class FatmaNewCheckers {
 	static int countComTurns = 0;
 	static int countPlayerTurns = 0;
 	static String eatPlayer = "";
-	public static int column,row;
+	public static int column, row;
 	public static String [][] board = new String [8][8];
 	public static String [] WhitePlayers = {"8,8","8,6","8,4","8,2","7,1","7,3","7,5","7,7","6,2","6,4","6,6","6,8"}; // 12 players and position for example with 12-34
 	public static String [] RedPlayers = {"1,1","1,3","1,5","1,7","2,2","2,4","2,6","2,8","3,1","3,3","3,5","3,7"}; // 12 players and position for example with 12-34;
@@ -303,10 +303,11 @@ public class FatmaNewCheckers {
 			if(WhitePlayers[i].isEmpty()){
 				continue;
 			}
-			int rowRed = WhitePlayers[i].charAt(0)-49;
-			int columnRed = WhitePlayers[i].charAt(2)-49;
-			if(rowRed == beforeRow && columnRed == beforeCol){
+			int rowWhite = WhitePlayers[i].charAt(0)-49;
+			int columnWhite = WhitePlayers[i].charAt(2)-49;
+			if(rowWhite == beforeRow && columnWhite == beforeCol){
 				WhitePlayers[i] = "";
+				board[rowWhite,columnWhite] = "*";
 				whiteCount--;
 				break;
 			}
@@ -321,6 +322,7 @@ public class FatmaNewCheckers {
 			int columnRed = RedPlayers[i].charAt(2)-49;
 			if(rowRed == beforeRow && columnRed == beforeCol){
 				RedPlayers[i] = "";
+				board[rowRed,columnRed] = "*";
 				redCount--;
 				break;
 			}
@@ -335,11 +337,8 @@ public class FatmaNewCheckers {
 		int beforeCol = chosenMove.charAt(4)-49;
 		int midRow = (newRow + beforeRow)/2;
 		int midCol = (newCol + beforeCol)/2;
-		board[newRow][newCol]="W";
-		board[beforeRow][beforeCol]="*";
-		board[midRow][midCol]="*";
-		moveWhitePlayer(beforeRow,beforeCol,newRow,newCol);
-		removeRedPlayer(beforeRow,beforeCol);
+		chnngeboard(beforeRow,beforeCol,newRow,newCol,'W');
+		removeRedPlayer(midRow,midCol);
 		countComTurns++;
 		if(redCount==0)
 		{
