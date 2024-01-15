@@ -1,7 +1,8 @@
+package javaWork;
 
 import java.util.Scanner;
 
-public class FatmaChekers {
+public class FatmaNewCheckers {
 
 	static Scanner sc = new Scanner(System.in);
 	private final static int PlayersCount = 12;
@@ -247,28 +248,20 @@ public class FatmaChekers {
 				if (legalMovesLeft.length != 0 && legalMovesRight.length != 0) {
 					if (movingRight()) {
 						MoveToRightRandomly(legalMovesRight);
-						System.out.println("Computer has played.");
-						playerPlay();
 					} else {
 						MoveToLeftRandomly(legalMovesLeft);
-						System.out.println("Computer has played.");
-						playerPlay();
 					}
 				} else if (legalMovesLeft.length != 0) {
 					MoveToLeftRandomly(legalMovesLeft);
-					System.out.println("Computer has played.");
-					playerPlay();
-					
+
 				} else if (legalMovesRight.length != 0) {
 					MoveToRightRandomly(legalMovesRight);
-					System.out.println("Computer has played.");
-					playerPlay();
-					
+
 				} else {
 					endGame("cantMove");
 				}
-				
-			}
+				System.out.println("Computer has played.");
+				playerPlay();			}
 		}
 	}
 	public static void changeBoard(int beforeRow , int beforeColumn, int afterRow , int afterColumn , char player){
