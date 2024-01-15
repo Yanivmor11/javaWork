@@ -142,6 +142,7 @@ public class FatmaNewCheckers {
 			else
 			if(userEats(strPosition))
 			{
+				Print(board);
 				String position=strPosition.substring(0,2);
 				countPlayerTurns++;
 				if(whiteCount==0)
