@@ -9,6 +9,7 @@ public class FatmaNewCheckers {
 	static int redCount = PlayersCount;//count how many red tools on the board
 	static int whiteCount = PlayersCount;//count how many white tools on the board
 	static int countComTurns = 0;
+	static int countPlayerTurns = 0;
 	static String eatPlayer = "";
 	public static int column,row;
 	public static String [][] board = new String [8][8];
@@ -145,7 +146,9 @@ public class FatmaNewCheckers {
 			board[startRow][startCol]="*";
 			board[endRow][endCol]="R";
 			board[midRow][midCol]="*";
+			moveRedPlayer(startRow,startCol,endRow,endCol);
 			removeWhitePlayer(midRow,midCol);
+
 			return true;
 		}
 		return false;
@@ -410,6 +413,97 @@ public class FatmaNewCheckers {
 			}
 			int rowRed = RedPlayers[i].charAt(0) -49;
 			int columnRed = RedPlayers[i].charAt(2) -49;
+			if (rowWhite - 1 == rowRed && columnRed == columnWhite - 1) {
+				if (rowWhite - 2 > 0 && columnWhite - 2 > 0 && board[rowWhite - 2][columnWhite - 2].equals("*")) {
+					CanEat[count] =rowWhite + "" +columnWhite +"-"+(rowWhite - 2) +""+ (columnWhite - 2);
+					count++;
+				}
+			}
+			if(rowWhite - 1 == rowRed && columnRed == columnWhite + 1) {
+				if (rowWhite - 2 > 0 && columnWhite + 2 <= 8 && board[rowWhite - 2][columnWhite + 2].equals("*")) {
+					CanEat[count] = rowWhite + "" +columnWhite +"-"+(rowWhite - 2) + "" + (columnWhite + 2);
+					count++;
+				}
+			}
+			if (countComTurns != 0){
+				if ((rowWhite + 1 == rowRed && columnRed == columnWhite + 1)) {
+					if (rowWhite + 2 < 9 && columnWhite + 2 < 9 && board[rowWhite + 2][columnWhite + 2].equals("*")) {
+						CanEat[count] = rowWhite + "" +columnWhite +"-"+(rowWhite + 2) + "" + (columnWhite + 2);
+						count++;
+					}
+				}
+				if(rowWhite + 1 == rowRed && columnRed == columnWhite - 1) {
+					if (rowWhite + 2 < 9 && columnWhite - 2 > 0 && board[rowWhite + 2][columnWhite - 2].equals("*")) {
+						CanEat[count] = rowWhite + "" +columnWhite +"-"+(rowWhite + 2) + "" + (columnWhite - 2);
+						count++;
+					}
+				}
+			}
+		}
+		return CanEat;
+	}
+	public static String[] findAllOptionalEatingsUser() // Array to store all optional eating moves for the computer.
+	{
+		String [] canEat = new String[100];
+		int count = 0;
+		for (int i = 0; i<PlayersCount; i++){
+			if (RedPlayers[i].equals("") || RedPlayers[i]==null ){
+				continue;
+			}
+			int rowRed = RedPlayers[i].charAt(0)-49;
+			int columnRed = RedPlayers[i].charAt(2)-49;
+			for(int j = 0; j<PlayersCount; j++){
+				if (RedPlayers[i].equals("") || RedPlayers[i]==null ){
+					continue;
+				}
+				int rowWhite = WhitePlayers[j].charAt(0)-49;
+				int columnWhite = WhitePlayers[j].charAt(2)-49;
+				if ((rowRed - 1 == rowWhite && columnWhite == columnRed - 1)) {
+					if (rowRed - 2 > 0 && columnRed - 2 > 0 && board[rowRed - 2][columnRed - 2].equals("*")) {
+						canEat[count] =rowRed + "" +columnRed +"-"+(rowRed - 2) +""+ (columnRed - 2);
+						count++;
+					}
+				}
+				if(rowRed - 1 == rowWhite && columnWhite == columnRed + 1) {
+					if (rowRed - 2 > 0 && columnRed - 2 < 8 && board[rowRed - 2][columnRed - 2].equals("*")) {
+						canEat[count] =rowRed + "" +columnRed +"-"+(rowRed - 2) +""+ (columnRed - 2);
+						count++;
+					}
+				}
+				if (countComTurns != 0){
+					if ((rowWhite + 1 == rowRed && columnRed == columnWhite + 1)) {
+						if (rowWhite + 2 < 8 && columnWhite + 2 < 8 && board[rowWhite + 2][columnWhite + 2].equals("*")) {
+							canEat[count] = rowWhite + "" +columnWhite +"-"+(rowWhite + 2) + "" + (columnWhite + 2);
+							count++;
+						}
+					}
+					if(rowWhite + 1 == rowRed && columnRed == columnWhite - 1) {
+						if (rowWhite + 2 < 8 && columnWhite - 2 > 0 && board[rowWhite + 2][columnWhite - 2].equals("*")) {
+							canEat[count] = rowWhite + "" +columnWhite +"-"+(rowWhite + 2) + "" + (columnWhite - 2);
+							count++;
+						}
+					}
+				}
+			}
+		}
+		String [] newCanEat = new String[count];
+		for (int i=0; i<count;i++){
+			newCanEat[i]=canEat[i];
+		}
+		return newCanEat;
+	}
+	public static String[] findAllOptionalEatingsAfterEatingUser(String player) // player 1,2
+	{
+		String [] CanEat = new String[32];
+		int count = 0;
+		int rowWhite = player.charAt(0)-49;
+		int columnWhite = player.charAt(2)-49;
+		for(int i = 0; i<PlayersCount; i++){
+			if (WhitePlayers[i].equals("") || WhitePlayers[i]==null ){
+				continue;
+			}
+			int rowRed = WhitePlayers[i].charAt(0) -49;
+			int columnRed = WhitePlayers[i].charAt(2) -49;
 			if (rowWhite - 1 == rowRed && columnRed == columnWhite - 1) {
 				if (rowWhite - 2 > 0 && columnWhite - 2 > 0 && board[rowWhite - 2][columnWhite - 2].equals("*")) {
 					CanEat[count] =rowWhite + "" +columnWhite +"-"+(rowWhite - 2) +""+ (columnWhite - 2);
