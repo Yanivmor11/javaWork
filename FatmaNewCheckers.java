@@ -1,8 +1,7 @@
-package javaWork;
 
 import java.util.Scanner;
 
-public class FatmaNewCheckers {
+public class FatmaChekers {
 
 	static Scanner sc = new Scanner(System.in);
 	private final static int PlayersCount = 12;
@@ -107,11 +106,15 @@ public class FatmaNewCheckers {
 			if(jumpROneSquare(strPosition) || jumpLOneSquare(strPosition))// Only takes step 1 (not including eating).
 			{
 				changeBoard(startRow,startCol,endRow,endCol,'R');
+				printComTurn();
 				computerTurn();// The user made a correct move - the turn goes to the computer.
 			}
-			System.out.println();
-			System.out.print("This move is invalid, please enter a new move.");
-			playerPlay(); // If the user did illegal move.
+			else
+			{
+				System.out.println();
+				System.out.print("This move is invalid, please enter a new move.");
+				playerPlay(); // If the user did illegal move.
+			}
 		}
 		else 
 			if(userEats(strPosition))
@@ -213,7 +216,6 @@ public class FatmaNewCheckers {
 		{
 			endGame("cantMove");
 		}
-		printAfterComTurn();
 		if(countComTurns > 0)// If the computer performed more than one turn. He will only be allowed to eat.
 		{
 			String[] optionalEatings = findAllOptionalEatingsAfterEating(eatPlayer);
@@ -230,7 +232,6 @@ public class FatmaNewCheckers {
 			}
 		}
 		if(countComTurns == 0) {
-			printComTurn();
 			String[] optionalEatings = findAllOptionalEatings();
 			if (optionalEatings.length > 0)  // If there are optional eating moves, choose one randomly.
 			{
@@ -246,20 +247,27 @@ public class FatmaNewCheckers {
 				if (legalMovesLeft.length != 0 && legalMovesRight.length != 0) {
 					if (movingRight()) {
 						MoveToRightRandomly(legalMovesRight);
+						System.out.println("Computer has played.");
+						playerPlay();
 					} else {
 						MoveToLeftRandomly(legalMovesLeft);
+						System.out.println("Computer has played.");
+						playerPlay();
 					}
-					playerPlay();
 				} else if (legalMovesLeft.length != 0) {
 					MoveToLeftRandomly(legalMovesLeft);
-
+					System.out.println("Computer has played.");
+					playerPlay();
+					
 				} else if (legalMovesRight.length != 0) {
 					MoveToRightRandomly(legalMovesRight);
-
+					System.out.println("Computer has played.");
+					playerPlay();
+					
 				} else {
 					endGame("cantMove");
 				}
-				playerPlay();
+				
 			}
 		}
 	}
@@ -698,7 +706,6 @@ public class FatmaNewCheckers {
 	}
 	public static void printAfterComTurn() 
 	{
-		System.out.println("Computer has played.");
 		System.out.println("The board:");
 		Print(board);
 		System.out.println();
