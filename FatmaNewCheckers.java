@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class FatmaNewCheckers {
 
-	static Scanner sc = new Scanner(System.in);
+        static Scanner sc = new Scanner(System.in);
 	private final static int PlayersCount = 12;
 	static int redCount = PlayersCount;//count how many red tools on the board
 	static int whiteCount = PlayersCount;//count how many white tools on the board
@@ -53,7 +53,7 @@ public class FatmaNewCheckers {
 		while(strPosition.length()==0);
 		validInput(strPosition);
 	}
-	public static String castInput(String strPosition){
+	public static String castInput(String strPosition){ 
 		return (strPosition.charAt(0)-casting-1) + "" + (strPosition.charAt(1)-casting-1) + "-"+(strPosition.charAt(3)-casting-1)+""+(strPosition.charAt(4)-casting-1);
 	}
 	public static void validInput(String strPosition)// Check if the input of the user valid.
@@ -70,7 +70,6 @@ public class FatmaNewCheckers {
 		}
 		else 
 		{
-
 			for(int i=0; i<5; i++)
 			{
 				if(i!=2)
@@ -95,16 +94,18 @@ public class FatmaNewCheckers {
 				System.out.print("The input is not valid, please enter your move again.");
 				playerPlay();
 			}
-			if(countPlayerTurns>0) {
+			if(countPlayerTurns>0) { //After eating, we will ask whether he can eat again.
 				String position =castInput(strPosition);
-				int startRow= eatComputer.charAt(0)-casting;
+				int startRow= eatComputer.charAt(0)-casting; //position of the tool that the user must move with.
 				int startCol = eatComputer.charAt(2)-casting;
 				boolean isValidEat = false;
 				if(position.charAt(3)==startRow && position.charAt(4)==startCol){
 					int endRow = position.charAt(0);
 					int endCol = position.charAt(1);
 					String [] options = findAllOptionalEatingsAfterEatingUser(eatComputer);
-					for (String option : options) {
+					for(int i=0; i<options.length; i++)
+					{
+						String option = options[i];
 						if (option.charAt(0) == endRow && option.charAt(2) == endCol) {
 							playerLegalMoveAgain(position);
 							isValidEat = true;
@@ -129,21 +130,18 @@ public class FatmaNewCheckers {
 		int endCol=strPosition.charAt(1)-casting;
 		int startRow=strPosition.charAt(3)-casting;
 		int startCol=strPosition.charAt(4)-casting;
-		String start = startRow + "," + startCol;
-		String end = endRow + "," + endCol;
 		if(board[startRow][startCol].equals("R") && board[endRow][endCol].equals("*"))
 		{
 			if(jumpROneSquare(strPosition) || jumpLOneSquare(strPosition))// Only takes step 1 (not including eating).
 			{
 				changeBoard(startRow,startCol,endRow,endCol,'R');
-				printComTurn();
+				printAfterPlayerTurn();
 				computerTurn();// The user made a correct move - the turn goes to the computer.
 			}
 			else
 			if(userEats(strPosition))
 			{
-				Print(board);
-				String position=strPosition.substring(0,2);
+				Print(board); // 
 				countPlayerTurns++;
 				if(whiteCount==0)
 				{
@@ -154,12 +152,12 @@ public class FatmaNewCheckers {
 					eatingMore(strPosition);
 				}
 			}
-			else
-			{
-				System.out.println();
-				System.out.print("This move is invalid, please enter a new move.");
-				playerPlay();
-			}
+		}
+		else
+		{
+			System.out.println();
+			System.out.print("This move is invalid, please enter a new move.");
+			playerPlay();
 		}
 	}
 	public static boolean userEats(String strPosition) // A function that describes the user's eating behavior.
@@ -196,6 +194,7 @@ public class FatmaNewCheckers {
 		}
 	}
 	public static void playerLegalMoveAgain(String position){
+		playerPlay();
 		if(userEats(position))
 		{
 			countPlayerTurns++;
@@ -208,7 +207,8 @@ public class FatmaNewCheckers {
 				eatingMore(position);
 			}
 		}
-		else {
+		else 
+		{
 			eatComputer="";
 			countPlayerTurns = 0;
 			computerTurn();
@@ -240,8 +240,7 @@ public class FatmaNewCheckers {
 		}
 		if(countComTurns > 0)// If the computer performed more than one turn. He will only be allowed to eat.
 		{
-			Print(board);
-
+		
 			String[] optionalEatings = findAllOptionalEatingsAfterEating(eatPlayer);
 			if (optionalEatings.length > 0)  // If there are optional eating moves, choose one randomly.
 			{
@@ -257,6 +256,7 @@ public class FatmaNewCheckers {
 			}
 		}
 		if(countComTurns == 0) {
+			Print(board);
 			String[] optionalEatings = findAllOptionalEatings();
 			if (optionalEatings.length > 0)  // If there are optional eating moves, choose one randomly.
 			{
@@ -264,7 +264,8 @@ public class FatmaNewCheckers {
 				String chosenMove = optionalEatings[randomIndex];
 				if (chosenMove != null && !chosenMove.isEmpty())
 					computerEats(chosenMove);
-			} else // If no eating moves, decide whether to move right with a 30% probability.
+			} 
+			else // If no eating moves, decide whether to move right with a 30% probability.
 			{
 				String[] legalMovesRight = legalMovesRight();
 				String[] legalMovesLeft = legalMovesLeft();
@@ -283,7 +284,6 @@ public class FatmaNewCheckers {
 				} else {
 					endGame("cantMove");
 				}
-				System.out.println("Computer has played.");
 				playerPlay();
 			}
 		}
@@ -499,13 +499,15 @@ public class FatmaNewCheckers {
 		int count = 0;
 		int rowRed = player.charAt(0) - casting;
 		int columnRed = player.charAt(2) - casting;
-		for(int i = 0; i < PlayersCount; i++){
-			if (WhitePlayers[i].equals("") || WhitePlayers[i] == null){
+		for(int i = 0; i < PlayersCount; i++)
+		{
+			if (WhitePlayers[i].equals("") || WhitePlayers[i] == null)
+			{
 				continue;
 			}
 			int rowWhite = WhitePlayers[i].charAt(0) - casting;
 			int columnWhite = WhitePlayers[i].charAt(2) - casting;
-			if ((rowRed + 1 == rowWhite && columnWhite == columnRed + 1)) {
+			if ((rowRed + 1 == rowWhite && columnRed + 1 == columnWhite )) {
 				if (rowRed + 2 < 8 && columnRed + 2 < 8 && board[rowRed + 2][columnRed + 2].equals("*")) {
 					CanEat[count] = (rowRed + 2) + "" + (columnRed + 2) + "-" + rowRed + "" + columnRed;
 					count++;
@@ -631,7 +633,7 @@ public class FatmaNewCheckers {
 	}
 	public static boolean eatRight(String strPosition)
 	{
-		return (strPosition.charAt(3) - casting+1 < 8) && (strPosition.charAt(4) - casting +1 < 8) && board[strPosition.charAt(3) - casting +1][strPosition.charAt(4) - casting +1].equals("W") ////Moving according to the ASCII table from Char to number-(-48),and moving from the list position to the board position (1-) and check one place up (1+).
+		return (strPosition.charAt(3) - casting + 1 < 8) && (strPosition.charAt(4) - casting + 1 < 8) && board[strPosition.charAt(3) - casting +1][strPosition.charAt(4) - casting +1].equals("W") ////Moving according to the ASCII table from Char to number-(-48),and moving from the list position to the board position (1-) and check one place up (1+).
 				&& board[strPosition.charAt(0) - casting][strPosition.charAt(1) - casting].equals("*");
 	}
 	public static boolean jumpLTwoSquares(String strPosition)
@@ -710,12 +712,13 @@ public class FatmaNewCheckers {
 		System.out.println("It's your turn, please enter your move.");
 
 	}
-	public static void printComTurn()
+	public static void printAfterPlayerTurn()
 	{
 		System.out.println();
 		System.out.println("The board:");
 		Print(board);
 		System.out.println();
+		System.out.println("Computer has played.");
 	}
 	public static void printPlayerTurn()
 	{
@@ -743,14 +746,21 @@ public class FatmaNewCheckers {
 	public static void startGame() //Opening question and transition to the board.
 	{
 		System.out.println("Welcome to Fatma Checkers. To start the game press 1, to exit press 0:");
-		int userInput= sc.nextInt();
-		if(userInput==0)
+		String userInput;
+		do
+		{
+			userInput = sc.nextLine();
+		}
+		while(userInput.length()==0);
+		if(userInput.equals("0"))
 		{
 			endGame("Surrendered");
 		}
-		else
+		if(userInput.equals("1"))
 		{
 			playerPlay();
 		}
+		else
+			startGame();
 	}
 }
