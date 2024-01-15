@@ -5,12 +5,15 @@ import java.util.Scanner;
 public class FatmaNewCheckers {
 
 	static Scanner sc = new Scanner(System.in);
-	static int redCount=12;//count how many red tools on the board
-	static int whiteCount=12;//count how many white tools on the board
-	static int countComTurns=0;
+	private final static int PlayersCount = 12;
+	static int redCount = PlayersCount;//count how many red tools on the board
+	static int whiteCount = PlayersCount;//count how many white tools on the board
+	static int countComTurns = 0;
+	static String eatPlayer = "";
 	public static int column,row;
 	public static String [][] board = new String [8][8];
-
+	public static String [] WhitePlayers = {"8,8","8,6","8,4","8,2","7,1","7,3","7,5","7,7","6,2","6,4","6,6","6,8"}; // 12 players and position for example with 12-34
+	public static String [] RedPlayers = {"1,1","1,3","1,5","1,7","2,2","2,4","2,6","2,8","3,1","3,3","3,5","3,7"}; // 12 players and position for example with 12-34;
 
 	public static void main(String[] args) 
 	{
@@ -96,12 +99,13 @@ public class FatmaNewCheckers {
 		int endCol=strPosition.charAt(1)-'1';
 		int startRow=strPosition.charAt(3)-'1';
 		int startCol=strPosition.charAt(4)-'1';
+		String start_position = startRow + "," + startCol;
+		String end_position = endRow + "," + endCol;
 		if(board[startRow][startCol].equals("R") && board[endCol][endRow].equals("*"))
 		{
 			if(jumpROneSquare(strPosition) || jumpLOneSquare(strPosition))// Only takes step 1 (not including eating).
 			{
-				board[endRow][endCol]="R";//Moving according to the ASCII table from Char to number-(-48),and moving from the list position to the board position (1-).
-				board[startRow][startCol]="*";
+				changeBoard(startRow,startCol,endRow,endCol,'R');
 				computerTurn();// The user made a correct move - the turn goes to the computer.
 			}
 			System.out.println();
@@ -141,7 +145,7 @@ public class FatmaNewCheckers {
 			board[startRow][startCol]="*";
 			board[endRow][endCol]="R";
 			board[midRow][midCol]="*";
-			whiteCount--;
+			removeWhitePlayer(midRow,midCol);
 			return true;
 		}
 		return false;
@@ -202,63 +206,125 @@ public class FatmaNewCheckers {
 	}
 	public static void computerTurn() // computer turn.
 	{
+		if(comCantMove(board))
+		{
+			endGame("cantMove");
+		}
+		printAfterComTurn();
 		if(countComTurns > 0)// If the computer performed more than one turn. He will only be allowed to eat.
 		{
-			printAfterComTurn();
-			String[] optionalEatings = findAllOptionalEatings();
-	        if (optionalEatings.length > 0)  // If there are optional eating moves, choose one randomly.
-	        {
-	            int randomIndex = (int) (Math.random() * optionalEatings.length);
-	            String chosenMove = optionalEatings[randomIndex];
-	            computerEats(chosenMove);
-	        }
-	        else if(comCantMove(board))
-	        {
-	        	endGame("cantMove");
-	        }
-	        else
-	        {
-	        	countComTurns=0;
-	        	playerPlay();
-	        }
+			String[] optionalEatings = findAllOptionalEatingsAfterEating(eatPlayer);
+			if (optionalEatings.length > 0)  // If there are optional eating moves, choose one randomly.
+			{
+				int randomIndex = (int) (Math.random() * optionalEatings.length);
+				eatPlayer = optionalEatings[randomIndex];
+				computerEats(eatPlayer);
+			}
+			else
+			{
+				countComTurns=0;
+				playerPlay();
+			}
 		}
-		if(countComTurns == 0)
-		{
+		if(countComTurns == 0) {
 			printComTurn();
 			String[] optionalEatings = findAllOptionalEatings();
-	        if (optionalEatings.length > 0)  // If there are optional eating moves, choose one randomly.
-	        {
-	            int randomIndex = (int) (Math.random() * optionalEatings.length);
-	            String chosenMove = optionalEatings[randomIndex];
-	            if (chosenMove != null && !chosenMove.isEmpty())
-	            	computerEats(chosenMove);
-	        } 
-	        else if(comCantMove(board))
-	        {
-	        	endGame("cantMove");
-	        }
-	        else // If no eating moves, decide whether to move right with a 30% probability. 
-	        { 
-	        	if((legalMovesRight(board)) && (legalMovesLeft(board))) 
-	        	{
-	        		if(movingRight())
-	        		{
-	        			MoveToRightRandomly(board);
-	        			playerPlay();
-	        		}
-	        		else
-	        		{
-	        			MoveToLeftRandomly(board);
-	        			playerPlay();
-	        		}
-	        	}
-	        	/*if(comCanMoveRight(i,j,board) && !comCanMoveRight(i,j,board))
-	        	{
+			if (optionalEatings.length > 0)  // If there are optional eating moves, choose one randomly.
+			{
+				int randomIndex = (int) (Math.random() * optionalEatings.length);
+				String chosenMove = optionalEatings[randomIndex];
+				eatPlayer = chosenMove;
+				if (chosenMove != null && !chosenMove.isEmpty())
+					computerEats(chosenMove);
+			} else // If no eating moves, decide whether to move right with a 30% probability.
+			{
+				String[] legalMovesRight = legalMovesRight();
+				String[] legalMovesLeft = legalMovesLeft();
+				if (legalMovesLeft.length != 0 && legalMovesRight.length != 0) {
+					if (movingRight()) {
+						MoveToRightRandomly(legalMovesRight);
+					} else {
+						MoveToLeftRandomly(legalMovesLeft);
+					}
+					playerPlay();
+				} else if (legalMovesLeft.length != 0) {
+					MoveToLeftRandomly(legalMovesLeft);
 
-	        	}*/
-	        }
+				} else if (legalMovesRight.length != 0) {
+					MoveToRightRandomly(legalMovesRight);
+
+				} else {
+					endGame("cantMove");
+				}
+				playerPlay();
+			}
 		}
 	}
+	public static void changeBoard(int beforeRow , int beforeColumn, int afterRow , int afterColumn , char player){
+		board[beforeRow][beforeColumn]="*";
+		board[afterRow][afterColumn]=""+player;
+		if (player == 'W'){
+			moveWhitePlayer(beforeRow,beforeColumn,afterRow,afterColumn);
+		}
+		else{
+			moveRedPlayer(beforeRow,beforeColumn,afterRow,afterColumn);
+		}
+	}
+	public static void moveWhitePlayer(int beforeRow,int beforeCol,int newRow,int newCol){
+		for(int i=0;i<PlayersCount;i++){
+			if(WhitePlayers[i].isEmpty()){
+				continue;
+			}
+			int rowWhite = WhitePlayers[i].charAt(0)-49;
+			int columnWhite = WhitePlayers[i].charAt(2)-49;
+			if(rowWhite == beforeRow && columnWhite == beforeCol){
+				WhitePlayers[i] = newRow + "," + newCol;
+				break;
+			}
+		}
+	}
+	public static void moveRedPlayer(int beforeRow,int beforeCol,int newRow,int newCol){
+		for(int i=0;i<PlayersCount;i++){
+			if(RedPlayers[i].isEmpty()){
+				continue;
+			}
+			int rowWhite = RedPlayers[i].charAt(0)-49;
+			int columnWhite = RedPlayers[i].charAt(2)-49;
+			if(rowWhite == beforeRow && columnWhite == beforeCol){
+				RedPlayers[i] = newRow + "," + newCol;
+				break;
+			}
+		}
+	}
+	public static void removeWhitePlayer(int beforeRow,int beforeCol){
+		for(int i=0;i<PlayersCount;i++){
+			if(WhitePlayers[i].isEmpty()){
+				continue;
+			}
+			int rowRed = WhitePlayers[i].charAt(0)-49;
+			int columnRed = WhitePlayers[i].charAt(2)-49;
+			if(rowRed == beforeRow && columnRed == beforeCol){
+				WhitePlayers[i] = "";
+				whiteCount--;
+				break;
+			}
+		}
+	}
+	public static void removeRedPlayer(int beforeRow,int beforeCol){
+		for(int i=0;i<PlayersCount;i++){
+			if(RedPlayers[i].isEmpty()){
+				continue;
+			}
+			int rowRed = RedPlayers[i].charAt(0)-49;
+			int columnRed = RedPlayers[i].charAt(2)-49;
+			if(rowRed == beforeRow && columnRed == beforeCol){
+				RedPlayers[i] = "";
+				redCount--;
+				break;
+			}
+		}
+	}
+
 	public static void computerEats(String chosenMove)
 	{
 		int newRow = chosenMove.charAt(0)-49;
@@ -270,7 +336,8 @@ public class FatmaNewCheckers {
 		board[newRow][newCol]="W";
 		board[beforeRow][beforeCol]="*";
 		board[midRow][midCol]="*";
-		redCount--;
+		moveWhitePlayer(beforeRow,beforeCol,newRow,newCol);
+		removeRedPlayer(beforeRow,beforeCol);
 		countComTurns++;
 		if(redCount==0)
 		{
@@ -283,100 +350,154 @@ public class FatmaNewCheckers {
 	}
     public static String[] findAllOptionalEatings() // Array to store all optional eating moves for the computer.
     {
-        String[] optionalEatingsArray = new String[32]; // Maximum possible size is 32 only the black squares.
-
-        int index = 0; // Index to keep track of the array position.
-
-        for (int i = 0; i < 8; i++) 
-        {
-            for (int j = 0; j < 8; j++) 
-            {
-                if (i + 2 < 8 && j + 2 < 8 && board[i + 1][j + 1].equals("W") && board[i + 2][j + 2].equals("*") && board[i + 1][j + 1].equals("R")) // Check for possible eating moves to the right.
-                {
-                    optionalEatingsArray[index++] = (i + 3) + "" + (j + 3) + "-" + (i + 1) + "" + (j + 1);
-                }
-                if (i + 2 < 8 && j - 2 >= 0 && board[i + 1][j - 1].equals("W") && board[i + 2][j - 2].equals("*") && board[i + 1][j - 1].equals("R")) // Check for possible eating moves to the left.
-                {
-                    optionalEatingsArray[index++] = (i + 3) + "" + (j - 1) + "-" + (i + 1) + "" + (j + 1);
-                }
-                if (i - 2 >= 0 && j + 2 < 8 && board[i - 1][j + 1].equals("W") && board[i - 2][j + 2].equals("*") && board[i - 1][j + 1].equals("R")) // Check for possible eating moves backward to the right.
-                {
-                    optionalEatingsArray[index++] = (i - 1) + "" + (j + 3) + "-" + (i + 1) + "" + (j + 1);
-                }
-                if (i - 2 >= 0 && j - 2 >= 0 && board[i - 1][j - 1].equals("W") && board[i - 2][j - 2].equals("*") && board[i - 1][j - 1].equals("R")) // Check for possible eating moves backward to the left.
-                {
-                    optionalEatingsArray[index++] = (i - 1) + "" + (j - 1) + "-" + (i + 1) + "" + (j + 1);
-                }
-            }
-        }  
-        String[] trimmedArray = new String[index];
-        for (int i = 0; i < index; i++) {
-			trimmedArray[i] = optionalEatingsArray[i];
-        }
-        
-        return trimmedArray;
+		String [] canEat = new String[100];
+		int count = 0;
+		for (int i = 0; i<PlayersCount; i++){
+			if (WhitePlayers[i].equals("") || WhitePlayers[i]==null ){
+				continue;
+			}
+			int rowWhite = WhitePlayers[i].charAt(0)-49;
+			int columnWhite = WhitePlayers[i].charAt(2)-49;
+			for(int j = 0; j<PlayersCount; j++){
+				if (RedPlayers[i].equals("") || RedPlayers[i]==null ){
+					continue;
+				}
+				int rowRed = RedPlayers[j].charAt(0)-49;
+				int columnRed = RedPlayers[j].charAt(2)-49;
+				if ((rowWhite - 1 == rowRed && columnRed == columnWhite - 1)) {
+					if (rowWhite - 2 > 0 && columnWhite - 2 > 0 && board[rowWhite - 2][columnWhite - 2].equals("*")) {
+						canEat[count] =rowWhite + "" +columnWhite +"-"+(rowWhite - 2) +""+ (columnWhite - 2);
+						count++;
+					}
+				}
+				if(rowWhite - 1 == rowRed && columnRed == columnWhite + 1) {
+					if (rowWhite - 2 > 0 && columnWhite + 2 <= 8 && board[rowWhite - 2][columnWhite + 2].equals("*")) {
+						canEat[count] = rowWhite + "" +columnWhite +"-"+(rowWhite - 2) + "" + (columnWhite + 2);
+						count++;
+					}
+				}
+				if (countComTurns != 0){
+					if ((rowWhite + 1 == rowRed && columnRed == columnWhite + 1)) {
+						if (rowWhite + 2 < 8 && columnWhite + 2 < 8 && board[rowWhite + 2][columnWhite + 2].equals("*")) {
+							canEat[count] = rowWhite + "" +columnWhite +"-"+(rowWhite + 2) + "" + (columnWhite + 2);
+							count++;
+						}
+					}
+					if(rowWhite + 1 == rowRed && columnRed == columnWhite - 1) {
+						if (rowWhite + 2 < 8 && columnWhite - 2 > 0 && board[rowWhite + 2][columnWhite - 2].equals("*")) {
+							canEat[count] = rowWhite + "" +columnWhite +"-"+(rowWhite + 2) + "" + (columnWhite - 2);
+							count++;
+						}
+					}
+				}
+			}
+		}
+		String [] newCanEat = new String[count];
+		for (int i=0; i<count;i++){
+			newCanEat[i]=canEat[i];
+		}
+		return newCanEat;
     }
-    public static boolean legalMovesLeft(String[][] board) // Checks if there is any left move that the computer can do.
+	public static String[] findAllOptionalEatingsAfterEating(String player) // player 1,2
+	{
+		String [] CanEat = new String[32];
+		int count = 0;
+		int rowWhite = player.charAt(0)-49;
+		int columnWhite = player.charAt(2)-49;
+		for(int i = 0; i<PlayersCount; i++){
+			if (RedPlayers[i].equals("") || RedPlayers[i]==null ){
+				continue;
+			}
+			int rowRed = RedPlayers[i].charAt(0) -49;
+			int columnRed = RedPlayers[i].charAt(2) -49;
+			if (rowWhite - 1 == rowRed && columnRed == columnWhite - 1) {
+				if (rowWhite - 2 > 0 && columnWhite - 2 > 0 && board[rowWhite - 2][columnWhite - 2].equals("*")) {
+					CanEat[count] =rowWhite + "" +columnWhite +"-"+(rowWhite - 2) +""+ (columnWhite - 2);
+					count++;
+				}
+			}
+			if(rowWhite - 1 == rowRed && columnRed == columnWhite + 1) {
+				if (rowWhite - 2 > 0 && columnWhite + 2 <= 8 && board[rowWhite - 2][columnWhite + 2].equals("*")) {
+					CanEat[count] = rowWhite + "" +columnWhite +"-"+(rowWhite - 2) + "" + (columnWhite + 2);
+					count++;
+				}
+			}
+			if (countComTurns != 0){
+				if ((rowWhite + 1 == rowRed && columnRed == columnWhite + 1)) {
+					if (rowWhite + 2 < 9 && columnWhite + 2 < 9 && board[rowWhite + 2][columnWhite + 2].equals("*")) {
+						CanEat[count] = rowWhite + "" +columnWhite +"-"+(rowWhite + 2) + "" + (columnWhite + 2);
+						count++;
+					}
+				}
+				if(rowWhite + 1 == rowRed && columnRed == columnWhite - 1) {
+					if (rowWhite + 2 < 9 && columnWhite - 2 > 0 && board[rowWhite + 2][columnWhite - 2].equals("*")) {
+						CanEat[count] = rowWhite + "" +columnWhite +"-"+(rowWhite + 2) + "" + (columnWhite - 2);
+						count++;
+					}
+				}
+			}
+		}
+		return CanEat;
+	}
+    public static String[] legalMovesLeft() // Checks if there is any left move that the computer can do.
     {
-    	for (int i = 1; i < 8; i++) // Iterate through the board to find all legal moves to the left
-    	{
-    		for (int j = 0; j < 7; j++) 
-    		{
-    			if (board[i][j].equals("W") && board[i - 1][j + 1].equals("*")) 
-    			{
-    				return true;
-    			}
-    		}
-    	}
-    	return false;
+		String [] legal = new String [PlayersCount];
+		int count = 0;
+		for (int i=0; i<PlayersCount;i++){
+			if(WhitePlayers[i].isEmpty() ||WhitePlayers[i] == null )
+				continue;
+			int rowWhite = WhitePlayers[i].charAt(0) -49;
+			int columnWhite = WhitePlayers[i].charAt(2) -49;
+			if (rowWhite>0 && columnWhite>0 && board[rowWhite-1][columnWhite-1].equals("*")){
+				legal[count] =WhitePlayers[i];
+				count++;
+			}
+		}
+		String [] newlegal = new String [count];
+		for (int i=0; i<count;i++){
+			newlegal[i]=legal[i];
+		}
+		return newlegal;
+	}
+    public static String[] legalMovesRight() // Checks if there is any right move that the computer can do.
+    {
+		String [] legal = new String [PlayersCount];
+		int count = 0;
+		for (int i=0; i<PlayersCount;i++){
+			if(WhitePlayers[i].isEmpty() ||WhitePlayers[i] == null )
+				continue;
+			int rowWhite = WhitePlayers[i].charAt(0) -49;
+			int columnWhite = WhitePlayers[i].charAt(2) -49;
+			if (rowWhite > 0 && columnWhite < 7 && board[rowWhite-1][columnWhite+1].equals("*")){
+				legal[count] =WhitePlayers[i];
+				count++;
+			}
+		}
+		String [] newlegal = new String [count];
+		for (int i=0; i<count;i++){
+			newlegal[i]=legal[i];
+		}
+		return newlegal;
     }
-    public static boolean legalMovesRight(String[][] board) // Checks if there is any right move that the computer can do.
+    public static void MoveToRightRandomly(String [] legalMovesRight)
     {
-    	for (int i = 1; i < 8; i++) // Iterate through the board to find all legal moves to the left
-    	{
-    		for (int j = 1; j < 8; j++) 
-    		{
-    			if (board[i][j].equals("W") && board[i - 1][j - 1].equals("*")) 
-    			{
-    				return true;
-    			}
-    		}
-    	}
-    	return false;
+    	int randomIndex = (int) (Math.random() * legalMovesRight.length);
+		String move = legalMovesRight[randomIndex];
+		int Row = move.charAt(0) -49;
+		int Column = move.charAt(2) -49;
+		int newRow = Row - 1;
+		int newColumn = Column -1;
+		changeBoard(Row,Column,newRow,newColumn,'W');
     }
-    public static String MoveToRightRandomly(String[][] board) 
+    public static void MoveToLeftRandomly(String [] legalMovesLeft)
     {
-    	int countLegalMoves = 0;
-    	String[] legalMoves = new String[64]; // Maximum possible size is 64
-    	for (int i = 0; i < 8; i++) // Iterate through the board to find all legal moves to the left
-    	{
-    		for (int j = 0; j < 7; j++) 
-    		{
-    			if (board[i][j].equals("W") && board[i - 1][j + 1].equals("*")) 
-    			{
-    				legalMoves[countLegalMoves++] = (i + 1) + "" + (j + 1);
-    			}
-    		}
-    	}
-    	int randomIndex = (int) (Math.random() * countLegalMoves);
-    	return legalMoves[randomIndex];
-    }
-    public static String MoveToLeftRandomly(String[][] board) 
-    {
-    	int countLegalMoves = 0;
-    	String[] legalMoves = new String[64]; // Maximum possible size is 64
-    	for (int i = 0; i < 8; i++) // Iterate through the board to find all legal moves to the left
-    	{
-    		for (int j = 1; j < 8; j++) 
-    		{
-    			if (board[i][j].equals("W") && board[i - 1][j - 1].equals("*")) 
-    			{
-    				legalMoves[countLegalMoves++] = (i + 1) + "" + (j + 1);
-    			}
-    		}
-    	}
-    	int randomIndex = (int) (Math.random() * countLegalMoves);
-    	return legalMoves[randomIndex];
+		int randomIndex = (int) (Math.random() * legalMovesLeft.length);
+		String move = legalMovesLeft[randomIndex];
+		int Row = move.charAt(0)-49;
+		int Column = move.charAt(2)-49;
+		int newRow = Row - 1;
+		int newColumn = Column + 1;
+		changeBoard(Row,Column,newRow,newColumn,'W');
     }
     public static boolean comCantMove(String[][] board)
     {
@@ -487,6 +608,8 @@ public class FatmaNewCheckers {
 		System.out.println("The board:");
 		Print(board);
 		System.out.println();
+		System.out.println("It's your turn, please enter your move.");
+
 	}
 	public static void printComTurn()
 	{
