@@ -96,12 +96,10 @@ public class FatmaNewCheckers {
 	}
 	public static void legalMove(String strPosition)// Checking whether the move is legal.
 	{
-		int endRow=strPosition.charAt(0)-'1';//According to the ASKII table - (-48) died to the number, (-1) from the position on the board to the position in the formation.
-		int endCol=strPosition.charAt(1)-'1';
-		int startRow=strPosition.charAt(3)-'1';
-		int startCol=strPosition.charAt(4)-'1';
-		String start_position = startRow + "," + startCol;
-		String end_position = endRow + "," + endCol;
+		int endRow=strPosition.charAt(0)-49;//According to the ASKII table - (-48) died to the number, (-1) from the position on the board to the position in the formation.
+		int endCol=strPosition.charAt(1)-49;
+		int startRow=strPosition.charAt(3)-49;
+		int startCol=strPosition.charAt(4)-49;
 		if(board[startRow][startCol].equals("R") && board[endCol][endRow].equals("*"))
 		{
 			if(jumpROneSquare(strPosition) || jumpLOneSquare(strPosition))// Only takes step 1 (not including eating).
@@ -644,7 +642,7 @@ public class FatmaNewCheckers {
 	}
 	public static boolean jumpLOneSquare(String strPosition) // Checks if we have moved one step to the left.
 	{
-		return (strPosition.charAt(3) + 1 == strPosition.charAt(0)) && (strPosition.charAt(4) + 1 == strPosition.charAt(1));
+		return (strPosition.charAt(3) + 1 == strPosition.charAt(0)) && (strPosition.charAt(4) - 1 == strPosition.charAt(1));
 	}
 	public static boolean Winner()// The user wins when - there are no white tools.
 	{
